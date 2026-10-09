@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quản lý thiết bị Lab</title>
+</head>
+<body>
+    <h1>Danh sách thiết bị</h1>
+    
+    <!-- Form tìm kiếm và lọc -->
+    <form method="GET">
+        <input type="text" name="q" placeholder="Tìm tên thiết bị...">
+        <select name="category">
+            <option value="">Tất cả nhóm</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <hr>
+
+    <!-- Danh sách thiết bị -->
+    <table border="1">
+        <tr>
+            <th>Tên</th>
+            <th>Mã</th>
+            <th>Nhóm</th>
+            <th>Tình trạng</th>
+        </tr>
+        {% for eq in equipments %}
+        <tr>
+            <td>{{ eq.name }}</td>
+            <td>{{ eq.serial_number }}</td>
+            <td>{{ eq.category.name }}</td>
+            <td>{{ eq.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
