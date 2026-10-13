@@ -3,37 +3,66 @@
 <head>
     <title>Quản lý thiết bị Lab</title>
 </head>
-<body>
-    <h1>Danh sách thiết bị</h1>
+<body style="font-family: Arial, sans-serif; margin: 20px;">
     
-    <!-- Form tìm kiếm và lọc -->
-    <form method="GET">
-        <input type="text" name="q" placeholder="Tìm tên thiết bị...">
+    <!-- Thanh điều hướng tài khoản -->
+    <div style="background-color: #f4f4f4; padding: 10px; text-align: right; margin-bottom: 20px;">
+        {% if user.is_authenticated %}
+            <span>Xin chào, <strong>{{ user.username }}</strong></span> | 
+            <a href="{% url 'borrow_history' %}">Lịch sử mượn</a> | 
+            <!-- Django yêu cầu Đăng xuất phải dùng method POST để bảo mật -->
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer;">Đăng xuất</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Đăng nhập</a>
+        {% endif %}
+    </div>
+
+    <h1>Danh sách thiết bị</h1>
+    <form method="GET" style="margin-bottom: 20px;">
+        <input type="text" name="q" placeholder="Tìm tên thiết bị..." value="{{ request.GET.q }}">
         <select name="category">
             <option value="">Tất cả nhóm</option>
             {% for cat in categories %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
             {% endfor %}
         </select>
         <button type="submit">Tìm kiếm</button>
     </form>
 
-    <hr>
-
-    <!-- Danh sách thiết bị -->
-    <table border="1">
-        <tr>
-            <th>Tên</th>
-            <th>Mã</th>
-            <th>Nhóm</th>
-            <th>Tình trạng</th>
+    <!-- Bảng danh sách thiết bị -->
+    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <tr style="background-color: #e0e0e0;">
+            <th style="padding: 8px;">Tên</th>
+            <th style="padding: 8px;">Mã</th>
+            <th style="padding: 8px;">Nhóm</th>
+            <th style="padding: 8px;">Tình trạng</th>
+            <th style="padding: 8px;">Hành động</th> <!-- Thêm cột Hành động -->
         </tr>
         {% for eq in equipments %}
         <tr>
-            <td>{{ eq.name }}</td>
-            <td>{{ eq.serial_number }}</td>
-            <td>{{ eq.category.name }}</td>
-            <td>{{ eq.get_status_display }}</td>
+            <td style="padding: 8px;">{{ eq.name }}</td>
+            <td style="padding: 8px;">{{ eq.serial_number }}</td>
+            <td style="padding: 8px;">{{ eq.category.name }}</td>
+            <td style="padding: 8px;">
+                {% if eq.status == 'available' %}
+                    <span style="color: green; font-weight: bold;">{{ eq.get_status_display }}</span>
+                {% else %}
+                    <span style="color: red;">{{ eq.get_status_display }}</span>
+                {% endif %}
+            </td>
+            <td style="padding: 8px;">
+                <!-- Logic chặn mượn nếu thiết bị không sẵn sàng -->
+                {% if eq.status == 'available' %}
+                    <a href="{% url 'borrow_equipment' %}"><button>Đăng ký mượn</button></a>
+                {% else %}
+                    <button disabled>Đang bận</button>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
