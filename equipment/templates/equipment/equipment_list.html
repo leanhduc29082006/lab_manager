@@ -1,70 +1,99 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Quản lý thiết bị Lab</title>
-</head>
-<body style="font-family: Arial, sans-serif; margin: 20px;">
-    
-    <!-- Thanh điều hướng tài khoản -->
-    <div style="background-color: #f4f4f4; padding: 10px; text-align: right; margin-bottom: 20px;">
-        {% if user.is_authenticated %}
-            <span>Xin chào, <strong>{{ user.username }}</strong></span> | 
-            <a href="{% url 'borrow_history' %}">Lịch sử mượn</a> | 
-            <!-- Django yêu cầu Đăng xuất phải dùng method POST để bảo mật -->
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer;">Đăng xuất</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}">Đăng nhập</a>
-        {% endif %}
+{% extends 'equipment/base.html' %}
+
+{% block title %}Danh sách thiết bị{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-semibold mb-1">Tài nguyên phòng lab</p>
+        <h2 class="mb-0">Danh sách thiết bị</h2>
     </div>
+    <div class="d-flex gap-2">
+        {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">Dashboard</a>
+        {% endif %}
+        <a href="{% url 'maintenance_list' %}" class="btn btn-outline-primary">Bảo trì</a>
+    </div>
+</div>
 
-    <h1>Danh sách thiết bị</h1>
-    <form method="GET" style="margin-bottom: 20px;">
-        <input type="text" name="q" placeholder="Tìm tên thiết bị..." value="{{ request.GET.q }}">
-        <select name="category">
-            <option value="">Tất cả nhóm</option>
-            {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
-                    {{ cat.name }}
-                </option>
-            {% endfor %}
-        </select>
-        <button type="submit">Tìm kiếm</button>
+<div class="card p-4 mb-4">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label">Tìm kiếm</label>
+            <input type="text" class="form-control" name="q" value="{{ request.GET.q }}" placeholder="Tên, mã hoặc nhóm thiết bị...">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Nhóm thiết bị</label>
+            <select name="category" class="form-select">
+                <option value="">Tất cả nhóm</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Tình trạng</label>
+            <select name="status" class="form-select">
+                <option value="">Tất cả</option>
+                <option value="available" {% if selected_status == 'available' %}selected{% endif %}>Sẵn sàng</option>
+                <option value="borrowed" {% if selected_status == 'borrowed' %}selected{% endif %}>Đang mượn</option>
+                <option value="maintenance" {% if selected_status == 'maintenance' %}selected{% endif %}>Đang bảo trì</option>
+                <option value="broken" {% if selected_status == 'broken' %}selected{% endif %}>Hỏng</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        </div>
     </form>
+</div>
 
-    <!-- Bảng danh sách thiết bị -->
-    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
-        <tr style="background-color: #e0e0e0;">
-            <th style="padding: 8px;">Tên</th>
-            <th style="padding: 8px;">Mã</th>
-            <th style="padding: 8px;">Nhóm</th>
-            <th style="padding: 8px;">Tình trạng</th>
-            <th style="padding: 8px;">Hành động</th> <!-- Thêm cột Hành động -->
-        </tr>
-        {% for eq in equipments %}
-        <tr>
-            <td style="padding: 8px;">{{ eq.name }}</td>
-            <td style="padding: 8px;">{{ eq.serial_number }}</td>
-            <td style="padding: 8px;">{{ eq.category.name }}</td>
-            <td style="padding: 8px;">
-                {% if eq.status == 'available' %}
-                    <span style="color: green; font-weight: bold;">{{ eq.get_status_display }}</span>
-                {% else %}
-                    <span style="color: red;">{{ eq.get_status_display }}</span>
-                {% endif %}
-            </td>
-            <td style="padding: 8px;">
-                <!-- Logic chặn mượn nếu thiết bị không sẵn sàng -->
-                {% if eq.status == 'available' %}
-                    <a href="{% url 'borrow_equipment' %}"><button>Đăng ký mượn</button></a>
-                {% else %}
-                    <button disabled>Đang bận</button>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+<div class="card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên</th>
+                    <th>Mã</th>
+                    <th>Nhóm</th>
+                    <th>Tình trạng</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eq in equipments %}
+                <tr>
+                    <td class="fw-semibold">{{ eq.name }}</td>
+                    <td>{{ eq.serial_number }}</td>
+                    <td>{{ eq.category.name|default:'Chưa phân loại' }}</td>
+                    <td>
+                        {% if eq.status == 'available' %}
+                            <span class="status-badge bg-success-subtle text-success">{{ eq.get_status_display }}</span>
+                        {% elif eq.status == 'borrowed' %}
+                            <span class="status-badge bg-primary-subtle text-primary">{{ eq.get_status_display }}</span>
+                        {% elif eq.status == 'maintenance' %}
+                            <span class="status-badge bg-warning-subtle text-warning">{{ eq.get_status_display }}</span>
+                        {% else %}
+                            <span class="status-badge bg-danger-subtle text-danger">{{ eq.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if eq.status == 'available' %}
+                                <a href="{% url 'borrow_equipment' %}" class="btn btn-success btn-sm">Đăng ký mượn</a>
+                            {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>Đang bận</button>
+                            {% endif %}
+                            <a href="{% url 'equipment_maintenance' eq.id %}" class="btn btn-outline-info btn-sm">Bảo trì</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Không tìm thấy thiết bị phù hợp.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

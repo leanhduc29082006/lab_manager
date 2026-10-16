@@ -1,0 +1,86 @@
+{% extends 'equipment/base.html' %}
+
+{% block title %}Dashboard quản trị{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-primary fw-semibold mb-1">Tổng quan</p>
+        <h2 class="mb-0">Dashboard quản trị</h2>
+    </div>
+    <a href="{% url 'equipment_list' %}" class="btn btn-outline-primary">Quay lại danh sách</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card p-4 border-success-subtle">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Đang rảnh</p>
+                    <h3 class="mb-0 text-success">{{ available_count }}</h3>
+                </div>
+                <span class="badge bg-success-subtle text-success rounded-pill p-2">Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 border-danger-subtle">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Đang hỏng</p>
+                    <h3 class="mb-0 text-danger">{{ broken_count }}</h3>
+                </div>
+                <span class="badge bg-danger-subtle text-danger rounded-pill p-2">Fault</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 border-warning-subtle">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-1">Quá hạn</p>
+                    <h3 class="mb-0 text-warning">{{ overdue_count }}</h3>
+                </div>
+                <span class="badge bg-warning-subtle text-warning rounded-pill p-2">Late</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Thiết bị đang mượn quá hạn</h4>
+    </div>
+
+    {% if overdue_records %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Thiết bị</th>
+                        <th>Người mượn</th>
+                        <th>Ngày hẹn trả</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in overdue_records %}
+                    <tr>
+                        <td>{{ record.equipment.name }}</td>
+                        <td>{{ record.borrower.username }}</td>
+                        <td>{{ record.expected_return_date|date:'d/m/Y' }}</td>
+                        <td>
+                            <span class="status-badge bg-warning-subtle text-warning">Quá hạn</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-success mb-0">Không có thiết bị nào quá hạn chưa trả.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,30 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Đăng nhập - Lab Manager</title>
-</head>
-<body style="font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; border: 1px solid #ccc; padding: 20px;">
-    <h2 style="text-align: center;">Đăng nhập hệ thống</h2>
-    
-    <!-- Hiện lỗi nếu sai pass -->
-    {% if form.errors %}
-        <p style="color: red;">Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.</p>
-    {% endif %}
+{% extends 'equipment/base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        <p>
-            <label>Tên đăng nhập:</label><br>
-            {{ form.username }}
-        </p>
-        <p>
-            <label>Mật khẩu:</label><br>
-            {{ form.password }}
-        </p>
-        <button type="submit" style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none;">
-            Đăng nhập
-        </button>
-    </form>
-    <p style="text-align: center;"><a href="{% url 'equipment_list' %}">Quay lại trang chủ</a></p>
-</body>
-</html>
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Đăng nhập hệ thống</h2>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.</div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Tên đăng nhập</label>
+                    {{ form.username }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'equipment_list' %}" class="text-decoration-none">Quay lại trang chủ</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
