@@ -83,7 +83,9 @@
                             {% else %}
                                 <button class="btn btn-secondary btn-sm" disabled>Đang bận</button>
                             {% endif %}
-                            <a href="{% url 'equipment_maintenance' eq.id %}" class="btn btn-outline-info btn-sm">Bảo trì</a>
+                            {% if user.is_staff or user.is_superuser %}
+                                <a href="{% url 'equipment_maintenance' eq.id %}" class="btn btn-outline-info btn-sm">Bảo trì</a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

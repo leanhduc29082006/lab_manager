@@ -72,6 +72,7 @@ def dashboard(request):
     }
     return render(request, 'equipment/dashboard.html', context)
 @login_required
+@user_passes_test(lambda user: user.is_staff or user.is_superuser)
 def maintenance_list(request):
     records = MaintenanceRecord.objects.select_related('equipment').order_by('-maintenance_date')
     return render(
@@ -80,6 +81,7 @@ def maintenance_list(request):
         {'records': records, 'equipment': None, 'show_form': False, 'form': None},
     )
 @login_required
+@user_passes_test(lambda user: user.is_staff or user.is_superuser)
 def equipment_maintenance(request, equipment_id):
     equipment = get_object_or_404(Equipment, pk=equipment_id)
     records = MaintenanceRecord.objects.filter(equipment=equipment).order_by('-maintenance_date')
