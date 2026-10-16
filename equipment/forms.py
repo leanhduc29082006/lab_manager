@@ -1,8 +1,5 @@
 from django import forms
-
 from .models import BorrowRecord, Equipment, MaintenanceRecord
-
-
 class BorrowForm(forms.ModelForm):
     class Meta:
         model = BorrowRecord

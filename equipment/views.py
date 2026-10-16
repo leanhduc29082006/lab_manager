@@ -29,7 +29,6 @@ def equipment_list(request):
         'selected_status': status_filter,
     }
     return render(request, 'equipment/equipment_list.html', context)
-
 @login_required
 def borrow_equipment(request):
     if request.method == 'POST':
@@ -55,7 +54,6 @@ def borrow_history(request):
         records = BorrowRecord.objects.select_related('equipment', 'borrower').filter(borrower=request.user).order_by('-borrow_date')
 
     return render(request, 'equipment/borrow_history.html', {'records': records, 'now': timezone.now()})
-
 @login_required
 @user_passes_test(lambda user: user.is_staff or user.is_superuser)
 def dashboard(request):
@@ -73,7 +71,6 @@ def dashboard(request):
         'overdue_count': overdue_records.count(),
     }
     return render(request, 'equipment/dashboard.html', context)
-
 @login_required
 def maintenance_list(request):
     records = MaintenanceRecord.objects.select_related('equipment').order_by('-maintenance_date')
@@ -82,12 +79,10 @@ def maintenance_list(request):
         'equipment/maintenance_history.html',
         {'records': records, 'equipment': None, 'show_form': False, 'form': None},
     )
-
 @login_required
 def equipment_maintenance(request, equipment_id):
     equipment = get_object_or_404(Equipment, pk=equipment_id)
     records = MaintenanceRecord.objects.filter(equipment=equipment).order_by('-maintenance_date')
-
     if request.method == 'POST':
         form = MaintenanceRecordForm(request.POST)
         if form.is_valid():
@@ -100,7 +95,6 @@ def equipment_maintenance(request, equipment_id):
             return redirect('equipment_maintenance', equipment_id=equipment.id)
     else:
         form = MaintenanceRecordForm()
-
     context = {
         'equipment': equipment,
         'records': records,
