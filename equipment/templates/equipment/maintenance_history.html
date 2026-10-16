@@ -1,0 +1,92 @@
+{% extends 'equipment/base.html' %}
+
+{% block title %}
+    {% if equipment %}Bảo trì {{ equipment.name }}{% else %}Lịch sử bảo trì{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-semibold mb-1">Bảo trì & sửa chữa</p>
+        {% if equipment %}
+            <h2 class="mb-0">Lịch sử bảo trì: {{ equipment.name }}</h2>
+        {% else %}
+            <h2 class="mb-0">Lịch sử bảo trì toàn hệ thống</h2>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        {% if equipment %}
+            <a href="{% url 'maintenance_list' %}" class="btn btn-outline-secondary">Xem tất cả</a>
+        {% else %}
+            <a href="{% url 'equipment_list' %}" class="btn btn-outline-secondary">Về danh sách</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if show_form %}
+    <div class="card p-4 mb-4">
+        <h4 class="mb-3">Thêm lịch sử bảo trì</h4>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày bảo trì</label>
+                    {{ form.maintenance_date }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Chi phí</label>
+                    {{ form.cost }}
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Mô tả sửa chữa</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Lịch bảo trì tiếp theo</label>
+                    {{ form.next_maintenance_date }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-primary">Lưu lịch sử</button>
+            </div>
+        </form>
+    </div>
+{% endif %}
+
+<div class="card p-4">
+    {% if records %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Thiết bị</th>
+                        <th>Ngày bảo trì</th>
+                        <th>Chi phí</th>
+                        <th>Mô tả</th>
+                        <th>Lần bảo trì tiếp theo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.equipment.name }}</td>
+                        <td>{{ record.maintenance_date|date:'d/m/Y' }}</td>
+                        <td>{{ record.cost|floatformat:0 }} VNĐ</td>
+                        <td>{{ record.description }}</td>
+                        <td>
+                            {% if record.next_maintenance_date %}
+                                {{ record.next_maintenance_date|date:'d/m/Y' }}
+                            {% else %}
+                                <span class="text-muted">Chưa lên lịch</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mb-0">Chưa có lịch sử bảo trì cho thiết bị này.</div>
+    {% endif %}
+</div>
+{% endblock %}

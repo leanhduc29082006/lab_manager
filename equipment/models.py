@@ -1,14 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Tên nhóm")
     description = models.TextField(blank=True, null=True, verbose_name="Mô tả")
-
     def __str__(self):
         return self.name
-
 class Equipment(models.Model):
     STATUS_CHOICES = [
         ('available', 'Sẵn sàng'),
