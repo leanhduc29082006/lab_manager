@@ -13,17 +13,14 @@ class Equipment(models.Model):
         ('maintenance', 'Đang bảo trì'),
         ('broken', 'Hỏng hóc'),
     ]
-
     name = models.CharField(max_length=200, verbose_name="Tên thiết bị")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, verbose_name="Nhóm thiết bị")
     serial_number = models.CharField(max_length=100, unique=True, verbose_name="Mã/Serial")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name="Tình trạng")
     purchase_date = models.DateField(verbose_name="Ngày mua")
     description = models.TextField(blank=True, verbose_name="Ghi chú")
-
     def __str__(self):
         return f"{self.name} ({self.serial_number})"
-
 class BorrowRecord(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, verbose_name="Thiết bị")
     borrower = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Người mượn")
@@ -31,10 +28,8 @@ class BorrowRecord(models.Model):
     expected_return_date = models.DateTimeField(verbose_name="Ngày hẹn trả")
     actual_return_date = models.DateTimeField(null=True, blank=True, verbose_name="Ngày trả thực tế")
     is_returned = models.BooleanField(default=False, verbose_name="Đã trả")
-
     def __str__(self):
         return f"{self.borrower.username} mượn {self.equipment.name}"
-
 class MaintenanceRecord(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, verbose_name="Thiết bị")
     maintenance_date = models.DateField(verbose_name="Ngày bảo trì")

@@ -41,10 +41,8 @@ def borrow_equipment(request):
             messages.success(request, f"Bạn đã mượn thành công thiết bị: {borrow_record.equipment.name}")
             return redirect('borrow_history')
     else:
-        form = BorrowForm()
-
+        form = BorrowForm() 
     return render(request, 'equipment/borrow_form.html', {'form': form})
-
 @login_required
 def borrow_history(request):
     # Tối ưu truy vấn CSDL của nhóm B
@@ -52,7 +50,6 @@ def borrow_history(request):
         records = BorrowRecord.objects.select_related('equipment', 'borrower').all().order_by('-borrow_date')
     else:
         records = BorrowRecord.objects.select_related('equipment', 'borrower').filter(borrower=request.user).order_by('-borrow_date')
-
     return render(request, 'equipment/borrow_history.html', {'records': records, 'now': timezone.now()})
 @login_required
 @user_passes_test(lambda user: user.is_staff or user.is_superuser)
